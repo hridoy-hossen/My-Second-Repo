@@ -11,7 +11,11 @@
     box-shadow: -10px -10px 15px rgba(0, 0, 255, 0.589);
 }
 #box-2{
-  */
+  background-image: url(background\ image.jpg);
+  background-size: cover;
+  background-position: center;
+  font-weight: bolder;
+  color: white
 }
 .new{
     font-weight: bolder;
