@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced Canvas Snake</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    canvas {
+      border: 2px solid black;
+      background-color: #222;
+    }
+    #scoreBoard {
+      position: absolute;
+      top: 10px;
+      font-family: Arial, sans-serif;
+      font-size: 24px;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scoreBoard">Score: 0</div>
+<canvas id="myCanvas" width="400" height="400"></canvas>
+
+<script>
+  var canvas = document.getElementById("myCanvas");
+  var ctx = canvas.getContext("2d");
+
+  // সাপের এবং খাবারের প্রাথমিক অবস্থা
+  var snake = [{x: 150, y: 150}, {x: 140, y: 150}, {x: 130, y: 150}];
+  var dx = 10;
+  var dy = 0;
+  var food = {x: 200, y: 200};
+  var score = 0;
+  var speed = 100;
+
+  // সাপ এবং খাবারের রঙ
+  var snakeColor = "#00FF00";
+  var snakeBorderColor = "#006600";
+  var foodColor = "#FF0000";
+
+  // স্কোর আপডেটের জন্য ফাংশন
+  function updateScore() {
+    document.getElementById("scoreBoard").innerText = "Score: " + score;
+  }
+
+  // সাপ আঁকার ফাংশন
+  function drawSnake() {
+    snake.forEach(part => {
+      ctx.fillStyle = snakeColor;
+      ctx.strokeStyle = snakeBorderColor;
+      ctx.fillRect(part.x, part.y, 10, 10);
+      ctx.strokeRect(part.x, part.y, 10, 10);
+    });
+  }
+
+  // খাবার আঁকার ফাংশন
+  function drawFood() {
+    ctx.fillStyle = foodColor;
+    ctx.beginPath();
+    ctx.arc(food.x + 5, food.y + 5, 5, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+
+  // সাপের গতি আপডেট করার ফাংশন
+  function moveSnake() {
+    var head = {x: snake[0].x + dx, y: snake[0].y + dy};
+    snake.unshift(head);
+
+    // খাবার খাওয়ার লজিক
+    if (head.x === food.x && head.y === food.y) {
+      score++;
+      updateScore();
+      generateFood();
+      // গতি বাড়ানো
+      if (speed > 50) speed -= 5;
+    } else {
+      snake.pop();
+    }
+  }
+
+  // নতুন খাবার তৈরি করার ফাংশন
+  function generateFood() {
+    do {
+      food.x = Math.floor(Math.random() * 40) * 10;
+      food.y = Math.floor(Math.random() * 40) * 10;
+    } while (snake.some(part => part.x === food.x && part.y === food.y));
+  }
+
+  // সাপ নিজেকে বা দেয়ালে আঘাত করেছে কিনা চেক
+  function checkCollision() {
+    for (var i = 1; i < snake.length; i++) {
+      if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) return true;
+    }
+    return (
+      snake[0].x < 0 || 
+      snake[0].x >= canvas.width || 
+      snake[0].y < 0 || 
+      snake[0].y >= canvas.height
+    );
+  }
+
+  // ক্যানভাস পরিষ্কার করার ফাংশন
+  function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // কীবোর্ড নিয়ন্ত্রণ
+  document.addEventListener("keydown", function(event) {
+    if (event.key === "ArrowUp" && dy === 0) {
+      dx = 0; dy = -10;
+    } else if (event.key === "ArrowDown" && dy === 0) {
+      dx = 0; dy = 10;
+    } else if (event.key === "ArrowLeft" && dx === 0) {
+      dx = -10; dy = 0;
+    } else if (event.key === "ArrowRight" && dx === 0) {
+      dx = 10; dy = 0;
+    }
+  });
+
+  // গেম লুপ
+  function gameLoop() {
+    if (checkCollision()) {
+      alert("Game Over! Final Score: " + score);
+      document.location.reload();
+      return;
+    }
+    clearCanvas();
+    moveSnake();
+    drawSnake();
+    drawFood();
+    setTimeout(gameLoop, speed);
+  }
+
+  // গেম শুরু
+  generateFood();
+  gameLoop();
+
+</script>
+
+</body>
+</html>
